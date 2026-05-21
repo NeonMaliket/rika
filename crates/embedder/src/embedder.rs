@@ -13,15 +13,17 @@ pub struct DefaultEmbedder {
 
 impl Embedder for DefaultEmbedder {
     fn encode<'a>(&self, tokens: impl Iterator<Item = Token<'a>>) -> Vec<i32> {
+        let eot = self.dict.get_embedding(Token::end_of_text());
         tokens
-            .filter_map(|token| self.dict.get_embedding(token))
+            .map(|token| self.dict.get_embedding(token))
+            .chain(std::iter::once(eot))
             .collect()
     }
 
     fn decode<'a>(&'a self, embedings: &[i32]) -> impl Iterator<Item = Token<'a>> {
         embedings
             .iter()
-            .filter_map(|embedding| self.dict.get_token(*embedding))
+            .map(|embedding| self.dict.get_token(*embedding))
     }
 }
 
@@ -44,11 +46,11 @@ mod tests {
             dict: Box::new(dictionary),
         };
 
-        let subject = "Hello world";
+        let subject = "Hello world lkj";
         let tokens = tokenizer.tokenize(subject);
         let embeddings = embedder.encode(tokens);
 
-        assert_eq!(embeddings, vec![0, 2]);
+        assert_eq!(embeddings, vec![0, 2, 5, 6]);
     }
 
     #[test]
@@ -69,6 +71,9 @@ mod tests {
 
         let decoded_tokens: Vec<_> = embedder.decode(&embeddings).collect();
 
-        assert_eq!(decoded_tokens, Token::many(["Hello", "world"]));
+        assert_eq!(
+            decoded_tokens,
+            Token::many(["Hello", "world", "<|UNK|>", "<|EOT|>"])
+        );
     }
 }

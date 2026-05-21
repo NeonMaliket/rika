@@ -2,6 +2,14 @@
 pub struct Token<'a>(pub(crate) &'a str);
 
 impl<'a> Token<'a> {
+    pub fn unknown() -> Self {
+        Token("<|UNK|>")
+    }
+
+    pub fn end_of_text() -> Self {
+        Token("<|EOT|>")
+    }
+
     pub fn as_str(&self) -> &'a str {
         self.0
     }
