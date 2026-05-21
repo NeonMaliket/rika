@@ -20,14 +20,14 @@ impl Embedder for DefaultEmbedder {
 #[cfg(test)]
 mod tests {
     use crate::dictionary::HashDictionary;
-    use crate::tokenizer::{self, Tokenizer};
+    use crate::tokenizer::{DefaultTokenizer, Tokenizer};
 
     use super::*;
 
     #[test]
     fn test_default_embedder() {
         let text = "Hello unknown world your mom";
-        let tokenizer = tokenizer::DefaultTokenizer;
+        let tokenizer = DefaultTokenizer;
         let tokens = tokenizer.tokenize(text);
 
         let dictionary = HashDictionary::new(tokens);
@@ -35,7 +35,6 @@ mod tests {
         let embedder = DefaultEmbedder {
             dict: Box::new(dictionary),
         };
-        
 
         let subject = "Hello world";
         let tokens = tokenizer.tokenize(subject);
